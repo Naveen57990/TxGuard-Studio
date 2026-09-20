@@ -1,7 +1,7 @@
 {
   "name": "txguard-studio",
   "version": "1.0.0",
-  "description": "Interactive Web3 Transaction Decompiler & Smart Contract Security Studio for 3rd-Web-Hack Devpost",
+  "description": "Interactive Web3 Transaction Decompiler & Smart Contract Security Studio",
   "author": "Naveen (Naveen57990)",
   "license": "MIT"
 }

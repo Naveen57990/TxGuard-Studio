@@ -243,7 +243,7 @@ ${lastAuditResult.findings.map(f => `
 `).join("\n")}
 
 ---
-*Verified by TxGuard Studio v1.0.0 — 3rd-Web-Hack Devpost Edition*
+*Verified by TxGuard Studio Security Engine v1.0.0*
 `;
 
     const blob = new Blob([report], { type: "text/markdown" });

@@ -1,7 +1,7 @@
 # 🛡️ TxGuard Studio
 
 > **Interactive Web3 Transaction Decompiler & Smart Contract Security Studio**  
-> *Built for 3rd-Web-Hack on Devpost ($750 USDT Prize Pool)*
+> *Zero-Trust EVM Transaction Dissector, Solidity Invariant Auditor & Execution Simulator*
 
 [![Live Web App](https://img.shields.io/badge/Live%20App-Vercel-6366f1?style=for-the-badge&logo=vercel)](https://txguard-studio.vercel.app)
 [![Automated Tests](https://img.shields.io/badge/Tests-10%2F10%20Passing-10b981?style=for-the-badge&logo=githubactions)](https://github.com/Naveen57990/TxGuard-Studio)
