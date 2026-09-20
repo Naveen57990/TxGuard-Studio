@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TxGuard Studio — Interactive Web3 Transaction & Smart Contract Security Studio</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/studio.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              900: '#1e1b4b'
+            },
+            dark: {
+              950: '#07090e',
+              900: '#0b0f19',
+              850: '#0f1422',
+              800: '#151b2e',
+              700: '#1e293b',
+              600: '#334155'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-dark-950 text-slate-100 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+  <!-- Navigation Header -->
+  <header class="border-b border-dark-700/80 bg-dark-950/90 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center text-white text-lg font-black shadow-lg shadow-indigo-500/20">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="text-xl font-black tracking-tight text-white">TXGUARD<span class="text-indigo-400">STUDIO</span></span>
+            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/80">3rd-Web-Hack</span>
+          </div>
+          <div class="text-[11px] text-slate-400 font-medium">Web3 Transaction Decompiler & Logic Auditor</div>
+        </div>
+      </div>
+
+      <!-- Center Status / Network -->
+      <div class="hidden md:flex items-center space-x-3 text-xs bg-dark-900 border border-dark-700/80 px-3 py-1.5 rounded-full">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-indicator"></span>
+        <span class="text-slate-300 font-medium">EVM Simulation Active</span>
+        <span class="text-slate-600">|</span>
+        <span class="text-slate-400 font-mono">Gas: 28 Gwei</span>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center space-x-3">
+        <div class="px-2.5 py-1 rounded bg-slate-800/80 text-[11px] font-semibold text-emerald-400 border border-emerald-800/50 hidden sm:inline-block">
+          <i class="fa-solid fa-bolt mr-1"></i> 100% In-Browser AST
+        </div>
+        <a href="https://github.com/Naveen57990/TxGuard-Studio" target="_blank" class="px-3 py-1.5 rounded-lg bg-dark-850 hover:bg-dark-800 border border-dark-700 hover:border-indigo-500 text-xs font-semibold transition flex items-center space-x-1.5">
+          <i class="fa-brands fa-github text-sm"></i>
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-1 border-t border-dark-800/50">
+      <button id="tab-calldata-btn" class="active-tab px-5 py-3 text-xs font-bold transition flex items-center space-x-2 border-b-2 border-indigo-500 text-indigo-400">
+        <i class="fa-solid fa-code"></i>
+        <span>Calldata Decompiler</span>
+      </button>
+      <button id="tab-contract-btn" class="px-5 py-3 text-xs font-bold text-slate-400 hover:text-slate-200 transition flex items-center space-x-2 border-b-2 border-transparent">
+        <i class="fa-solid fa-file-shield"></i>
+        <span>Smart Contract Studio</span>
+      </button>
+      <button id="tab-simulator-btn" class="px-5 py-3 text-xs font-bold text-slate-400 hover:text-slate-200 transition flex items-center space-x-2 border-b-2 border-transparent">
+        <i class="fa-solid fa-diagram-project"></i>
+        <span>Execution Flow & Gas</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+
+    <!-- ==================== TAB 1: CALLDATA DECOMPILER ==================== -->
+    <section id="tab-calldata" class="space-y-6">
+      <!-- Intro Banner -->
+      <div class="p-5 bg-gradient-to-r from-dark-900 to-dark-850 border border-dark-700/80 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-black text-white flex items-center space-x-2">
+            <span>Zero Blind Signatures: Decode Any Transaction</span>
+            <span class="px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 text-[10px] font-bold border border-indigo-800">4-Byte Dissector</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-1 max-w-2xl">
+            Paste any raw EVM calldata payload from MetaMask, Etherscan, or phishing prompts. TxGuard decodes method selectors, extracts 32-byte chunks, and translates complex contract calls into human-readable plain English before you sign.
+          </p>
+        </div>
+        <!-- Presets Dropdown -->
+        <div class="w-full md:w-auto">
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Load Real Exploit Scenario</label>
+          <select id="calldata-presets" class="w-full md:w-64 px-3 py-2 bg-dark-800 border border-dark-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+            <option value="unlimited_usdc_approve">Phishing: Unlimited USDC Approval</option>
+            <option value="permit_phishing_drain">Critical: EIP-2612 Permit Drain</option>
+            <option value="uniswap_multicall_swap">DeFi: Uniswap V3 Multicall Swap</option>
+            <option value="normal_erc20_transfer">Safe: Standard ERC-20 Transfer</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Input Card -->
+      <div class="p-5 bg-dark-900 border border-dark-700/80 rounded-2xl space-y-4">
+        <div class="flex items-center justify-between">
+          <label class="text-xs font-bold text-slate-300 flex items-center space-x-2">
+            <i class="fa-solid fa-terminal text-indigo-400"></i>
+            <span>Raw EVM Transaction Calldata (Hex)</span>
+          </label>
+          <span class="text-[11px] text-slate-500 font-mono">Press Ctrl/Cmd + Enter to Decode</span>
+        </div>
+
+        <textarea id="calldata-input" rows="4" class="w-full code-box p-3 rounded-xl text-slate-200 font-mono text-xs placeholder:text-slate-600 resize-y" placeholder="0x095ea7b3000000000000000000000000... Paste your custom calldata hex here"></textarea>
+
+        <div class="flex items-center justify-between pt-2">
+          <div class="text-[11px] text-slate-400">
+            <i class="fa-solid fa-circle-info text-cyan-400 mr-1"></i>
+            Judges can test <strong>custom hex payloads</strong> or select one of the real-world scenarios above.
+          </div>
+          <button id="decode-btn" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition flex items-center space-x-2 shadow-lg shadow-indigo-600/30">
+            <i class="fa-solid fa-bolt"></i>
+            <span>Decompile & Analyze</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Decoded Results Card -->
+      <div id="decoded-result-box" class="p-5 bg-dark-900 border border-dark-700/80 rounded-2xl space-y-6">
+        <!-- Header Info -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-dark-800">
+          <div class="flex items-center space-x-3">
+            <span id="method-badge" class="px-3 py-1 rounded-lg bg-indigo-950 text-indigo-300 font-mono font-bold text-xs border border-indigo-800">
+              approve
+            </span>
+            <span id="method-sig" class="font-mono text-xs text-slate-300">
+              approve(address spender, uint256 amount)
+            </span>
+          </div>
+          <div class="flex items-center space-x-3">
+            <span id="method-category" class="px-2.5 py-0.5 rounded text-[11px] font-semibold bg-dark-800 text-slate-300 border border-dark-700">
+              ERC-20 Allowance
+            </span>
+            <span id="bytes-count-badge" class="text-[11px] font-mono text-slate-400">
+              68 Bytes (2 Words)
+            </span>
+          </div>
+        </div>
+
+        <!-- Plain English Translation -->
+        <div class="p-4 bg-dark-850 border border-dark-700 rounded-xl space-y-1">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
+            <i class="fa-solid fa-comment-dots text-indigo-400"></i>
+            <span>Plain-English Human Translation</span>
+          </div>
+          <div id="plain-english-box" class="text-sm text-slate-200 leading-relaxed font-normal">
+            Grants address 0x68b346... unlimited permission to transfer all of your tokens.
+          </div>
+        </div>
+
+        <!-- Risks Alert Box -->
+        <div id="risk-alert-box" class="space-y-3">
+          <!-- Dynamic Alerts -->
+        </div>
+
+        <!-- Structured Parameters Table -->
+        <div class="space-y-2">
+          <div class="text-xs font-bold text-slate-300 flex items-center space-x-1.5">
+            <i class="fa-solid fa-table-list text-cyan-400"></i>
+            <span>Decoded Function Arguments (ABI Parameters)</span>
+          </div>
+          <div class="overflow-x-auto rounded-xl border border-dark-700">
+            <table class="w-full text-left">
+              <thead class="bg-dark-850 text-[11px] uppercase tracking-wider text-slate-400 font-bold border-b border-dark-700">
+                <tr>
+                  <th class="px-4 py-3">Parameter</th>
+                  <th class="px-4 py-3">Solidity Type</th>
+                  <th class="px-4 py-3">Role / Context</th>
+                  <th class="px-4 py-3">Decoded Value</th>
+                </tr>
+              </thead>
+              <tbody id="params-tbody" class="divide-y divide-dark-800 text-xs">
+                <!-- Injected by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: SMART CONTRACT STUDIO ==================== -->
+    <section id="tab-contract" class="space-y-6 hidden">
+      <!-- Studio Intro -->
+      <div class="p-5 bg-gradient-to-r from-dark-900 to-dark-850 border border-dark-700/80 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-black text-white flex items-center space-x-2">
+            <span>In-Browser Solidity Security & Logic Auditor</span>
+            <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 text-[10px] font-bold border border-emerald-800">AST Static Engine</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-1 max-w-2xl">
+            Inspect Solidity smart contracts for Reentrancy (CEI violations), insecure <code>tx.origin</code> authorization, non-standard ERC-20 return values, and MEV sandwich risks. Type your code, paste custom snippets, or drop a <code>.sol</code> file directly.
+          </p>
+        </div>
+        <!-- Contract Presets -->
+        <div class="w-full md:w-auto">
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Select Vulnerability Scenario</label>
+          <select id="contract-presets" class="w-full md:w-64 px-3 py-2 bg-dark-800 border border-dark-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+            <option value="reentrancy_vault">The Classic Reentrancy Vault (Vulnerable)</option>
+            <option value="insecure_tx_origin">Phishing Access Control (tx.origin)</option>
+            <option value="sandwich_dex_swap">Zero Slippage Swap (MEV Sandwich)</option>
+            <option value="secure_audited_vault">Audited ReentrancyGuard Vault (Secure)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Main Editor & Findings Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left: Code Editor (7 cols) -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="p-5 bg-dark-900 border border-dark-700/80 rounded-2xl space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2 text-xs font-bold text-slate-300">
+                <i class="fa-solid fa-code-branch text-indigo-400"></i>
+                <span>Solidity Contract Workspace</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <input type="file" id="sol-file-upload" accept=".sol,.txt" class="hidden">
+                <button id="upload-sol-btn" class="px-3 py-1.5 rounded-lg bg-dark-800 hover:bg-dark-750 border border-dark-700 text-xs text-slate-300 font-semibold transition flex items-center space-x-1.5">
+                  <i class="fa-solid fa-upload text-indigo-400"></i>
+                  <span>Upload .sol</span>
+                </button>
+              </div>
+            </div>
+
+            <textarea id="contract-textarea" rows="18" class="w-full code-box p-3 rounded-xl text-slate-200 font-mono text-xs placeholder:text-slate-600 resize-y" placeholder="// Paste your custom Solidity smart contract here..."></textarea>
+
+            <div class="flex items-center justify-between pt-2">
+              <div class="text-[11px] text-slate-400">
+                Judges can type/modify contract code freely.
+              </div>
+              <button id="audit-btn" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition flex items-center space-x-2 shadow-lg shadow-indigo-600/30">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <span>Run Invariant Audit</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Audit Findings & Remediation (5 cols) -->
+        <div class="lg:col-span-5 space-y-4">
+          <!-- Score Card -->
+          <div class="p-5 bg-dark-900 border border-dark-700/80 rounded-2xl flex items-center justify-between">
+            <div>
+              <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Security Health Score</div>
+              <div id="security-score-badge" class="text-3xl font-black text-white mt-1">
+                60 / 100
+              </div>
+            </div>
+            <div id="security-tier-badge" class="px-3 py-1 rounded-lg text-xs font-bold border bg-amber-950 text-amber-300 border-amber-800">
+              WARNING
+            </div>
+          </div>
+
+          <!-- Findings List -->
+          <div class="p-5 bg-dark-900 border border-dark-700/80 rounded-2xl space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="text-xs font-bold text-slate-300 flex items-center space-x-1.5">
+                <i class="fa-solid fa-bug text-rose-400"></i>
+                <span>Audit Findings & Risk Invariants</span>
+              </div>
+              <button id="export-report-btn" class="text-[11px] text-indigo-400 hover:text-indigo-300 font-semibold flex items-center space-x-1">
+                <i class="fa-solid fa-download"></i>
+                <span>Export Report</span>
+              </button>
+            </div>
+
+            <div id="findings-list" class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+              <!-- Injected by app.js -->
+            </div>
+
+            <!-- Patch Action Box -->
+            <div id="patch-section" class="pt-3 border-t border-dark-800 flex items-center justify-between">
+              <span class="text-xs text-slate-400">1-Click Auto Remediation</span>
+              <button id="apply-patch-btn" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition flex items-center space-x-1.5 shadow-lg shadow-emerald-600/30">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>Apply Security Patch</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: VISUAL EXECUTION & GAS SIMULATOR ==================== -->
+    <section id="tab-simulator" class="space-y-6 hidden">
+      <!-- Simulator Intro -->
+      <div class="p-5 bg-gradient-to-r from-dark-900 to-dark-850 border border-dark-700/80 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-black text-white flex items-center space-x-2">
+            <span>Dynamic Transaction Execution & State Simulator</span>
+            <span class="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[10px] font-bold border border-cyan-800">State Delta Engine</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-1 max-w-2xl">
+            Simulate state changes, gas costs, and token balance sheet deltas before sending transactions on-chain. Toggle attack vectors to witness reentrancy state corruption in real time.
+          </p>
+        </div>
+        <div class="flex items-center space-x-3">
+          <span id="sim-status-badge" class="px-3 py-1 rounded-full text-xs font-bold border bg-emerald-950 text-emerald-400 border-emerald-800">
+            CONFIRMED
+          </span>
+        </div>
+      </div>
+
+      <!-- Controls & Parameters Bar -->
+      <div class="p-5 bg-dark-900 border border-dark-700/80 rounded-2xl grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Gas Slider -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-bold text-slate-300">Base Gas Price (Gwei)</label>
+            <span id="gas-value-text" class="text-xs font-mono text-indigo-400 font-bold">28 Gwei</span>
+          </div>
+          <input type="range" id="gas-slider" min="5" max="150" value="28" class="w-full accent-indigo-500 bg-dark-800 rounded-lg cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+            <span>5 Gwei (Quiet)</span>
+            <span>150 Gwei (Congestion)</span>
+          </div>
+        </div>
+
+        <!-- Slippage Slider -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-bold text-slate-300">Max Slippage Bound</label>
+            <span id="slippage-value-text" class="text-xs font-mono text-cyan-400 font-bold">0.5%</span>
+          </div>
+          <input type="range" id="slippage-slider" min="0.1" max="10.0" step="0.1" value="0.5" class="w-full accent-cyan-500 bg-dark-800 rounded-lg cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+            <span>0.1% (Strict)</span>
+            <span>10.0% (High MEV Risk)</span>
+          </div>
+        </div>
+
+        <!-- Attack Vector Toggle -->
+        <div class="flex flex-col justify-center space-y-2 bg-dark-850 p-3 rounded-xl border border-dark-800">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-rose-300 flex items-center space-x-1.5">
+              <i class="fa-solid fa-biohazard"></i>
+              <span>Simulate Reentrancy Exploit</span>
+            </span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="attack-toggle" class="sr-only peer">
+              <div class="w-11 h-6 bg-dark-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-600"></div>
+            </label>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-tight">Simulates an untrusted contract hijacking execution via fallback.</p>
+        </div>
+      </div>
+
+      <!-- Simulation Summary & Metrics -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Gas Cost Card -->
+        <div class="p-5 bg-dark-900 border border-dark-700/80 rounded-2xl space-y-1">
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Estimated Gas Fee</div>
+          <div id="sim-gas-usd" class="text-2xl font-black text-white font-mono">$10.77</div>
+          <div id="sim-gas-eth" class="text-xs font-mono text-slate-400">0.00378 ETH (135,000 units)</div>
+        </div>
+
+        <!-- Execution Verdict Card (2 cols) -->
+        <div class="md:col-span-2 p-5 bg-dark-900 border border-dark-700/80 rounded-2xl flex flex-col justify-center">
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">State Transition Summary</div>
+          <div id="sim-summary" class="text-sm font-semibold text-slate-200 mt-1 leading-relaxed">
+            Atomic transaction finalized within 0.5% maximum slippage bound.
+          </div>
+        </div>
+      </div>
+
+      <!-- Balance Sheet Delta Table -->
+      <div class="p-5 bg-dark-900 border border-dark-700/80 rounded-2xl space-y-3">
+        <div class="text-xs font-bold text-slate-300 flex items-center space-x-1.5">
+          <i class="fa-solid fa-scale-balanced text-indigo-400"></i>
+          <span>Net Token Balance Sheet Delta</span>
+        </div>
+        <div class="overflow-x-auto rounded-xl border border-dark-700">
+          <table class="w-full text-left">
+            <thead class="bg-dark-850 text-[11px] uppercase tracking-wider text-slate-400 font-bold border-b border-dark-700">
+              <tr>
+                <th class="px-4 py-3">Asset</th>
+                <th class="px-4 py-3">Flow</th>
+                <th class="px-4 py-3">Delta</th>
+                <th class="px-4 py-3">Counterparty / Recipient</th>
+              </tr>
+            </thead>
+            <tbody id="balance-sheet-body" class="divide-y divide-dark-800 text-xs">
+              <!-- Injected by app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Execution Trace Steps -->
+      <div class="p-5 bg-dark-900 border border-dark-700/80 rounded-2xl space-y-3">
+        <div class="text-xs font-bold text-slate-300 flex items-center space-x-1.5">
+          <i class="fa-solid fa-shoe-prints text-cyan-400"></i>
+          <span>Step-by-Step Execution Trace</span>
+        </div>
+        <div id="trace-steps-container" class="space-y-2">
+          <!-- Injected by app.js -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-dark-800 bg-dark-950 py-6 text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center space-x-2">
+        <span class="font-bold text-slate-400">TxGuard Studio</span>
+        <span>•</span>
+        <span>Built for <strong>3rd-Web-Hack</strong> on Devpost</span>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span>MIT License</span>
+        <span>•</span>
+        <span>Automated Tests: <strong>10 / 10 Passing</strong></span>
+        <span>•</span>
+        <a href="https://github.com/Naveen57990/TxGuard-Studio" target="_blank" class="text-indigo-400 hover:underline">GitHub Repository</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/templates.js"></script>
+  <script src="js/decompiler.js"></script>
+  <script src="js/analyzer.js"></script>
+  <script src="js/simulator.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
